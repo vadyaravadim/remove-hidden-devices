@@ -17,6 +17,12 @@ PowerShell script to remove all devices with 'Unknown' status from Windows Devic
 .\remove-hidden-devices.ps1
 ```
 
+The script will:
+- Scan for unknown devices
+- Display the list for confirmation
+- Remove devices after confirmation
+- Offer system restart
+
 ## 💡 Recommended Tool
 
 For complete cleanup, use with [**Driver Store Explorer**](https://github.com/lostindark/DriverStoreExplorer):
@@ -49,18 +55,22 @@ Remove these devices? (Y/N): y
 
 Removing devices...
 
-✓ Done
+===================================
+REMOVE UNKNOWN DEVICES COMPLETED
+===================================
+
+For full registry changes to take effect,
+a system restart is recommended.
+
+Restart computer now? (y/n):
 ```
 
 ## 📝 License
 
 MIT License - feel free to use and modify.
 
-## 👤 Author
-
-**vadyaravadim**
-- GitHub: [@vadyaravadim](https://github.com/vadyaravadim)
-
 ---
+
+**Version 1.0** | [Report Issues](https://github.com/vadyaravadim/remove-hidden-devices/issues)
 
 ⭐ If this script helped you, consider giving it a star!

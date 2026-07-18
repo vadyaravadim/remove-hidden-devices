@@ -1,42 +1,51 @@
-# 🔧 Remove Unknown Devices
+<div align="center">
 
-PowerShell script to remove all devices with 'Unknown' status from Windows Device Manager.
+# Remove Hidden Devices
 
-## 📋 Requirements
+**Clean out ghost devices. Declutter Device Manager. One confirmation.**
 
-- Windows 10/11
-- PowerShell 5.1+
-- Administrator privileges
+An open-source PowerShell script that removes **ghost / hidden devices** (devices with `Unknown` status) from Windows Device Manager — leftovers from every USB stick, headset, and dongle you ever plugged in.
+Zero install. Zero dependencies. You see the full list before anything is removed.
 
-## 🚀 Usage
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows)](https://www.microsoft.com/windows)
+[![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?logo=powershell&logoColor=white)](https://docs.microsoft.com/en-us/powershell/)
+![GitHub Stars](https://img.shields.io/github/stars/vadyaravadim/remove-hidden-devices?style=social)
 
-1. Download [Remove-UnknownDevices.ps1](Remove-UnknownDevices.ps1)
-2. Right-click PowerShell/Terminal → **Run as Administrator**
-3. Navigate to script directory and run:
+</div>
+
+---
+
+## Quick Start
+
+**Easiest — download & double-click:**
+
+1. Click **Code ▸ Download ZIP** at the top of this page, then unzip.
+2. Double-click **`Run.bat`**.
+3. Click **Yes** on the UAC prompt (the script requests admin rights on its own).
+4. Review the device list, confirm with `Y`.
+
+**One-liner** instead (in any PowerShell — it self-elevates):
+
 ```powershell
-.\remove-hidden-devices.ps1
+irm https://raw.githubusercontent.com/vadyaravadim/remove-hidden-devices/main/remove-hidden-devices.ps1 -OutFile "$env:TEMP\remove-hidden-devices.ps1"; powershell -NoProfile -ExecutionPolicy Bypass -File "$env:TEMP\remove-hidden-devices.ps1"
 ```
 
-The script will:
-- Scan for unknown devices
-- Display the list for confirmation
-- Remove devices after confirmation
-- Offer system restart
+**Or clone:**
 
-## 💡 Recommended Tool
+```powershell
+git clone https://github.com/vadyaravadim/remove-hidden-devices.git
+cd remove-hidden-devices
+.\Run.bat
+```
 
-For complete cleanup, use with [**Driver Store Explorer**](https://github.com/lostindark/DriverStoreExplorer):
+## What It Does
 
-1. Run this script to remove unknown devices
-2. Use Driver Store Explorer to delete leftover drivers from DriverStore
+1. **Scans** for all devices with `Unknown` status — the ghost devices Device Manager only shows under *View ▸ Show hidden devices*
+2. **Shows the full list** and asks for confirmation — nothing is touched until you say `Y`
+3. **Removes** every listed device via the built-in `pnputil /remove-device`
+4. **Offers a reboot** so the registry changes fully take effect
 
-This combination ensures full removal of both devices and their drivers.
-
-## ⚠️ Warning
-
-This script permanently removes devices. Review the device list carefully before confirming removal.
-
-## 📸 Example Output
 ```
 ===================================
 REMOVE UNKNOWN DEVICES
@@ -52,25 +61,91 @@ Found 3 unknown device(s):
 
 ===================================
 Remove these devices? (Y/N): y
-
-Removing devices...
-
-===================================
-REMOVE UNKNOWN DEVICES COMPLETED
-===================================
-
-For full registry changes to take effect,
-a system restart is recommended.
-
-Restart computer now? (y/n):
 ```
 
-## 📝 License
+## The Problem: Ghost Devices
 
-MIT License - feel free to use and modify.
+Windows keeps a registry entry for **every device ever connected** — each USB stick, phone, headset, VM adapter, and docking station stays behind as a hidden "ghost" entry after you unplug it. Over the years they pile up into hundreds of stale entries.
+
+**Symptoms this fixes:**
+
+- Cluttered Device Manager full of greyed-out duplicates (`USB Composite Device`, `Unknown Device`, …)
+- COM port numbers climbing endlessly (`COM14`, `COM15`, …) because old ones are still reserved
+- Driver conflicts when a re-plugged device binds to a stale entry instead of a fresh one
+- Slower device enumeration on boot and plug-in
+
+## Requirements
+
+| | |
+|---|---|
+| **Windows** | 10, 11 |
+| **PowerShell** | Windows PowerShell 5.1+ (ships with Windows 10/11) |
+| **Rights** | Administrator (the script self-elevates via UAC) |
+
+## How It Works
+
+The script uses two documented, built-in tools — no third-party binaries:
+
+- [`Get-PnpDevice`](https://learn.microsoft.com/en-us/powershell/module/pnpdevice/get-pnpdevice) lists all Plug and Play devices; devices that are no longer present report `Status = Unknown` — the same ghost entries Device Manager greys out under *Show hidden devices*
+- [`pnputil /remove-device <InstanceId>`](https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/pnputil-command-syntax) removes each device node from the system
+
+## Verify
+
+After the reboot, open **Device Manager** → **View ▸ Show hidden devices**: the greyed-out ghost entries are gone. Or run the script again — it reports `No unknown devices found`.
+
+## Full Cleanup: Leftover Drivers
+
+Removing the devices does not remove their driver packages from the DriverStore. For a complete cleanup:
+
+1. Run this script to remove the ghost devices
+2. Use [**Driver Store Explorer**](https://github.com/lostindark/DriverStoreExplorer) to delete the orphaned driver packages they left behind
+
+## FAQ
+
+### What are hidden (ghost) devices?
+
+Registry entries for hardware that was connected at some point but is not present now. Device Manager hides them by default; *View ▸ Show hidden devices* reveals them as greyed-out entries. They serve no purpose once the hardware is gone.
+
+### Is it safe to remove them?
+
+The script only targets devices with `Unknown` status — i.e. not currently present. Hardware that is connected and working is not in the list. Still, **review the list before confirming**: removal is permanent, there is no undo file.
+
+### What happens if I remove a device I still use sometimes?
+
+Nothing dramatic — Windows re-detects it and reinstalls the driver the next time you plug it in. You may need to redo per-device settings (e.g. a manually assigned COM port number).
+
+### Why does it ask for a restart?
+
+Device removal touches the registry hive that Windows reads at boot. The changes apply fully after a restart.
+
+### How is this different from clicking through Device Manager manually?
+
+Device Manager makes you right-click ▸ Uninstall each ghost entry one by one — painful with hundreds of them. This script removes them all in one confirmed pass, using the same underlying mechanism.
+
+## Related
+
+- [CPU Parking Disabler](https://github.com/vadyaravadim/cpu-parking-disabler) — disable CPU core parking on Windows 10/11 to fix micro-stutters and input lag
+- [MSI Mode Utility](https://github.com/vadyaravadim/msi-mode-utility) — enable MSI mode (Message Signaled Interrupts) for GPU, USB, network & audio devices to cut DPC latency and input lag
+- [Interrupt Affinity Utility](https://github.com/vadyaravadim/interrupt-affinity-utility) — pin GPU, network, USB & audio interrupts to specific CPU cores (P/E-core aware) to tame DPC latency
+- [Timer Resolution Utility](https://github.com/vadyaravadim/timer-resolution-utility) — set 0.5 ms timer resolution, disable dynamic tick, un-force HPET — with a built-in Sleep(1) benchmark
+- [GameDVR & FSO Disabler](https://github.com/vadyaravadim/gamedvr-fso-disabler) — disable Game DVR / Xbox Game Bar capture and Fullscreen Optimizations to fix capture stutters and frame drops
+
+Same idea across the series: one transparent PowerShell script, no binaries, you see exactly what changes.
+
+## Disclaimer
+
+Device removal is permanent — there is no undo file. Review the device list carefully before confirming. Reconnecting the hardware makes Windows reinstall it. Use at your own risk.
+
+## License
+
+[MIT](LICENSE) — use at your own risk.
 
 ---
 
-**Version 1.0** | [Report Issues](https://github.com/vadyaravadim/remove-hidden-devices/issues)
+<div align="center">
 
-⭐ If this script helped you, consider giving it a star!
+If this cleaned up your Device Manager, consider giving it a ⭐
+
+[Report Issues](https://github.com/vadyaravadim/remove-hidden-devices/issues)
+
+</div>

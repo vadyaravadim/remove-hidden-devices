@@ -1,10 +1,10 @@
-# ============================================================================
+﻿# ============================================================================
 # Remove Unknown Devices
 # Removes all devices with 'Unknown' status from Device Manager
 # 
 # Author: https://github.com/vadyaravadim
-# Version: 1.0
-# Requirements: Windows 10/11, Run as Administrator
+# Version: 1.1
+# Requirements: Windows 10/11 (self-elevates via UAC)
 # ============================================================================
 
 Write-Host "==================================="
@@ -12,10 +12,22 @@ Write-Host "REMOVE UNKNOWN DEVICES"
 Write-Host "==================================="
 Write-Host ""
 
-# Check Administrator privileges
+# Self-elevate via UAC when not running as Administrator
 if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    Write-Host "ERROR: Run PowerShell as Administrator!"
-    pause
+    # No script path when piped via `irm | iex` — relaunch is impossible
+    if (-not $PSCommandPath) {
+        Write-Host "ERROR: Run PowerShell as Administrator!"
+        pause
+        exit
+    }
+    Write-Host "Not running as Administrator. Requesting elevation..."
+    try {
+        Start-Process -FilePath 'powershell.exe' -Verb RunAs -ArgumentList @(
+            '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$PSCommandPath`"")
+    } catch {
+        Write-Host "ERROR: elevation was refused. Run this script as Administrator."
+        pause
+    }
     exit
 }
 

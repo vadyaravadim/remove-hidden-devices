@@ -1,4 +1,4 @@
-﻿# ============================================================================
+# ============================================================================
 # Remove Unknown Devices
 # Removes all devices with 'Unknown' status from Device Manager
 # 
@@ -57,7 +57,7 @@ try {
     
     if ($UnknownDevices.Count -eq 0) {
         Write-Host ""
-        Write-Host "✓ No unknown devices found"
+        Write-Host "No unknown devices found"
         Write-Host ""
         pause
         exit
@@ -68,7 +68,7 @@ try {
     Write-Host ""
     
     $UnknownDevices | ForEach-Object { 
-        Write-Host "   → $($_.FriendlyName)"
+        Write-Host "   -> $($_.FriendlyName)"
     }
     
     Write-Host ""

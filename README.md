@@ -28,8 +28,10 @@ Zero install. Zero dependencies. You see the full list before anything is remove
 **One-liner** instead (in any PowerShell — it self-elevates):
 
 ```powershell
-irm https://raw.githubusercontent.com/vadyaravadim/remove-hidden-devices/main/remove-hidden-devices.ps1 -OutFile "$env:TEMP\remove-hidden-devices.ps1"; powershell -NoProfile -ExecutionPolicy Bypass -File "$env:TEMP\remove-hidden-devices.ps1"
+irm https://raw.githubusercontent.com/vadyaravadim/remove-hidden-devices/main/remove-hidden-devices.ps1 | iex
 ```
+
+The script saves itself to `%USERPROFILE%\remove-hidden-devices.ps1` and reruns from there; an existing copy at that path that differs is kept as `.bak`.
 
 **Or clone:**
 

@@ -7,6 +7,30 @@
 # Requirements: Windows 10/11 (self-elevates via UAC)
 # ============================================================================
 
+# Launched via `irm <url> | iex` - no file on disk. Save the script to the
+# user profile and rerun it from there (the rerun handles elevation).
+if (-not $PSCommandPath) {
+    # The piped text is not recoverable from inside iex ($MyInvocation there
+    # holds the caller's command line, not the script body) - download the
+    # script.
+    try {
+        $body = Invoke-RestMethod 'https://raw.githubusercontent.com/vadyaravadim/remove-hidden-devices/main/remove-hidden-devices.ps1' -TimeoutSec 30
+    } catch {
+        Write-Host "ERROR: could not download the script ($($_.Exception.Message)). Check your internet connection, or save the script to a file and run it from there." -ForegroundColor Red
+        return
+    }
+    $saved = Join-Path $env:USERPROFILE 'remove-hidden-devices.ps1'
+    if ((Test-Path $saved) -and ([IO.File]::ReadAllText($saved) -cne $body)) {
+        Copy-Item $saved "$saved.bak" -Force
+        Write-Host "Existing $saved differs - previous copy kept as $saved.bak" -ForegroundColor Yellow
+    }
+    [IO.File]::WriteAllText($saved, $body, [Text.Encoding]::UTF8)
+    Write-Host "Script saved to: $saved" -ForegroundColor Cyan
+    powershell -NoProfile -ExecutionPolicy Bypass -File $saved
+    # The rerun's exit code stays in $LASTEXITCODE for scripted callers.
+    return
+}
+
 Write-Host "==================================="
 Write-Host "REMOVE UNKNOWN DEVICES"
 Write-Host "==================================="
@@ -14,18 +38,13 @@ Write-Host ""
 
 # Self-elevate via UAC when not running as Administrator
 if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    # No script path when piped via `irm | iex` — relaunch is impossible
-    if (-not $PSCommandPath) {
-        Write-Host "ERROR: Run PowerShell as Administrator!"
-        pause
-        exit
-    }
     Write-Host "Not running as Administrator. Requesting elevation..."
     try {
         Start-Process -FilePath 'powershell.exe' -Verb RunAs -ArgumentList @(
             '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$PSCommandPath`"")
     } catch {
-        Write-Host "ERROR: elevation was refused. Run this script as Administrator."
+        # Not always a refusal (UAC service disabled, ...) - show the real cause.
+        Write-Host "ERROR: elevation failed ($($_.Exception.Message)). Run this script as Administrator."
         pause
     }
     exit

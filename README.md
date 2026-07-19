@@ -21,14 +21,7 @@ Zero install. Zero dependencies. You see the full list before anything is remove
 
 ## Quick Start
 
-**Easiest — download & double-click:**
-
-1. Click **Code ▸ Download ZIP** at the top of this page, then unzip.
-2. Double-click **`Run.bat`**.
-3. Click **Yes** on the UAC prompt (the script requests admin rights on its own).
-4. Review the device list, confirm with `Y`.
-
-**Or from the PowerShell Gallery:**
+**Easiest — from the PowerShell Gallery:**
 
 ```powershell
 Install-Script remove-hidden-devices
@@ -52,6 +45,10 @@ git clone https://github.com/vadyaravadim/remove-hidden-devices.git
 cd remove-hidden-devices
 .\Run.bat
 ```
+
+**Or download the ZIP** (no PowerShell needed): click **Code ▸ Download ZIP** at the top of this page, unzip, then double-click **`Run.bat`**.
+
+Whichever method you use: click **Yes** on the UAC prompt (the script requests admin rights on its own), then review the device list and confirm with `Y`.
 
 ## What It Does
 

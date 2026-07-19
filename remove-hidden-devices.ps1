@@ -1,11 +1,50 @@
-# ============================================================================
-# Remove Unknown Devices
-# Removes all devices with 'Unknown' status from Device Manager
-# 
-# Author: https://github.com/vadyaravadim
-# Version: 1.1
-# Requirements: Windows 10/11 (self-elevates via UAC)
-# ============================================================================
+<#PSScriptInfo
+
+.VERSION 1.0.0
+
+.GUID b7ca4884-b23d-4029-826b-34f4b5fc496b
+
+.AUTHOR vadyaravadim
+
+.COMPANYNAME
+
+.COPYRIGHT
+
+.TAGS Windows Windows10 Windows11 DeviceManager GhostDevices HiddenDevices Cleanup PnP Drivers Tweak
+
+.LICENSEURI https://github.com/vadyaravadim/remove-hidden-devices/blob/main/LICENSE
+
+.PROJECTURI https://github.com/vadyaravadim/remove-hidden-devices
+
+.ICONURI
+
+.EXTERNALMODULEDEPENDENCIES
+
+.REQUIREDSCRIPTS
+
+.EXTERNALSCRIPTDEPENDENCIES
+
+.RELEASENOTES
+
+.PRIVATEDATA
+
+#>
+
+<#
+.SYNOPSIS
+    Removes hidden / ghost devices (non-present hardware) from Device Manager on Windows 10/11.
+.DESCRIPTION
+    Enumerates devices whose driver is still registered but that are not
+    currently present - the ghost entries left behind by unplugged USB sticks,
+    headsets, dongles and old GPUs - and removes them so Device Manager reflects
+    only hardware that is actually connected. Self-elevates via UAC. Zero
+    external dependencies.
+.NOTES
+    Requirements: Windows 10/11. The script requests administrator rights on
+    its own (UAC prompt).
+.LINK
+    https://github.com/vadyaravadim/remove-hidden-devices
+#>
 
 # Launched via `irm <url> | iex` - no file on disk. Save the script to the
 # user profile and rerun it from there (the rerun handles elevation).

@@ -12,7 +12,7 @@ Zero install. Zero dependencies. You see the full list before anything is remove
 [![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows)](https://www.microsoft.com/windows)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?logo=powershell&logoColor=white)](https://docs.microsoft.com/en-us/powershell/)
 [![Latest release](https://img.shields.io/github/v/release/vadyaravadim/remove-hidden-devices)](https://github.com/vadyaravadim/remove-hidden-devices/releases)
-![GitHub Stars](https://img.shields.io/github/stars/vadyaravadim/=social)
+![GitHub Stars](https://img.shields.io/github/stars/vadyaravadim/remove-hidden-devices?style=social)
 
 </div>
 

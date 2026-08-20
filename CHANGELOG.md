@@ -35,8 +35,9 @@ went backwards once early on, so release order and version order disagree in thi
 
 - The script carried a UTF-8 BOM and non-ASCII characters in its output. Both broke real launch paths: the
   BOM made `irm | iex` choke on the leading byte order mark, and the non-ASCII characters turned into
-  mojibake when Windows PowerShell 5.1 ran the file with `-File`. The file is pure ASCII with no BOM now,
-  and a CI check keeps it that way.
+  mojibake when Windows PowerShell 5.1 ran the file with `-File`. The file is pure ASCII with no BOM
+  now - reversing the BOM 1.1.0 had added to fix a different parse failure - and a CI check keeps it that
+  way.
 - A failed elevation now prints the actual reason and keeps the window open. Elevation can fail for reasons
   other than a refused UAC prompt - a disabled UAC service, for one - and the old message assumed a
   refusal.

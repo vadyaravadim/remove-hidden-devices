@@ -48,12 +48,22 @@ went backwards once early on, so release order and version order disagree in thi
 - First release. Enumerates the devices whose driver is still registered but that are not currently
   present - the ghost entries left behind by unplugged USB sticks, headsets, dongles and old GPUs - and
   removes them, so Device Manager shows only hardware that is actually connected.
-- Self-elevates through UAC, and `Run.bat` makes it a double-click. Zero external dependencies.
+- Self-elevates through UAC: start it from an ordinary session and confirm the prompt, so there is
+  no need to open an admin console yourself first. Zero external dependencies.
+- `Run.bat` makes it a double-click, the same launcher pattern the rest of the series uses.
+
+### Changed
+
+- The README was rewritten in the format the rest of the series uses: Quick Start, The Problem:
+  Ghost Devices, How It Works, Verify, Full Cleanup (Driver Store Explorer), FAQ, and Related.
 
 ### Fixed
 
-- The script failed to parse under Windows PowerShell 5.1, which is the version that ships with Windows and
-  therefore the one most people were running it with.
+- The script failed to parse under Windows PowerShell 5.1, which is the version that ships with
+  Windows, the one `Run.bat` and a plain `powershell.exe` both use, and therefore the one most
+  people were running it with. The file was saved as UTF-8 with no BOM, so 5.1 read it as ANSI and
+  the multi-byte check mark and arrow characters in its output broke string parsing - one of their
+  bytes, `0x93`, was taken for a smart quote. The file is saved as UTF-8 with a BOM now.
 
 [Unreleased]: https://github.com/vadyaravadim/remove-hidden-devices/compare/v1.1.1...HEAD
 [1.1.1]: https://github.com/vadyaravadim/remove-hidden-devices/compare/v1.0.1...v1.1.1

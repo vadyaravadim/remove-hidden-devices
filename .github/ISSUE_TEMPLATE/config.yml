@@ -1,0 +1,9 @@
+# Blank issues stay on: ideas and questions should not have to fit the bug form.
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/vadyaravadim/remove-hidden-devices/security/advisories/new
+    about: The script runs as Administrator - please report privately, not in a public issue.
+  - name: A removed device came back after plugging it in, or its driver is still installed?
+    url: https://github.com/vadyaravadim/remove-hidden-devices#faq
+    about: Expected - the FAQ explains why Windows re-detects returning hardware, and Full Cleanup covers leftover driver packages.

@@ -12,6 +12,25 @@ went backwards once early on, so release order and version order disagree in thi
 
 ## [Unreleased]
 
+### Added
+
+- The banner shows the script version (`REMOVE HIDDEN DEVICES v1.1.2`), so you can tell at a glance whether
+  the copy you are running is the current release - and a bug report that includes the output says which
+  version it is about. A copy cloned or zipped from `main` rather than taken from a release says
+  `dev build`.
+
+### Changed
+
+- The `irm ... | iex` one-liner, and the copy it saves into your user profile, now download the latest
+  tagged release instead of whatever sits on `main`. Until now the one-liner ran - as Administrator - a
+  file that had not been through the release checks and had no checksum or provenance behind it. It is
+  now byte-for-byte the release asset, so `SHA256SUMS.txt` and `gh attestation verify` cover it too. The
+  old command keeps working; swap the URL for the one in the README when convenient.
+- A release is no longer published unless `lint` and `ascii-check` pass on the tagged commit.
+- An argument passed to the script or to `Run.bat` (`Run.bat -Foo`) now fails with an error instead of
+  being silently ignored - the script takes no switches. `Run.bat` used to drop anything typed after its
+  name.
+
 ## [1.1.1] - 2026-07-20
 
 ### Fixed

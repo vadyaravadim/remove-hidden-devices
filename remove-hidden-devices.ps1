@@ -1,6 +1,6 @@
 <#PSScriptInfo
 
-.VERSION 1.0.0
+.VERSION 0.0.0
 
 .GUID b7ca4884-b23d-4029-826b-34f4b5fc496b
 
@@ -45,6 +45,10 @@
 .LINK
     https://github.com/vadyaravadim/remove-hidden-devices
 #>
+# No switches - an empty param() makes a stray argument (e.g. Run.bat -Foo)
+# fail at binding instead of being silently ignored.
+[CmdletBinding()]
+param()
 
 # Launched via `irm <url> | iex` - no file on disk. Save the script to the
 # user profile and rerun it from there (the rerun handles elevation).
@@ -53,7 +57,7 @@ if (-not $PSCommandPath) {
     # holds the caller's command line, not the script body) - download the
     # script.
     try {
-        $body = Invoke-RestMethod 'https://raw.githubusercontent.com/vadyaravadim/remove-hidden-devices/main/remove-hidden-devices.ps1' -TimeoutSec 30
+        $body = Invoke-RestMethod 'https://github.com/vadyaravadim/remove-hidden-devices/releases/latest/download/remove-hidden-devices.ps1' -TimeoutSec 30
     } catch {
         Write-Host "ERROR: could not download the script ($($_.Exception.Message)). Check your internet connection, or save the script to a file and run it from there." -ForegroundColor Red
         return
@@ -72,11 +76,6 @@ if (-not $PSCommandPath) {
     return
 }
 
-Write-Host "==================================="
-Write-Host "REMOVE UNKNOWN DEVICES"
-Write-Host "==================================="
-Write-Host ""
-
 # Self-elevate via UAC when not running as Administrator
 if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
     Write-Host "Not running as Administrator. Requesting elevation..."
@@ -90,6 +89,18 @@ if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
     }
     exit
 }
+
+# Read from this file's own PSScriptInfo block - the one place the version
+# lives (release.yml stamps the tag into it). 0.0.0 is the committed
+# placeholder: a clone or ZIP of main, not a release.
+$version = [regex]::Match((Get-Content $PSCommandPath -Raw), '(?m)^\.VERSION\s+(\S+)').Groups[1].Value
+$version = if ($version -eq '0.0.0') { 'dev build' } else { "v$version" }
+
+Write-Host ""
+Write-Host "===================================" -ForegroundColor Cyan
+Write-Host "  REMOVE HIDDEN DEVICES $version" -ForegroundColor Cyan
+Write-Host "===================================" -ForegroundColor Cyan
+Write-Host ""
 
 try {
     # Get unknown devices
@@ -133,7 +144,7 @@ try {
     
     Write-Host ""
     Write-Host "==================================="
-    Write-Host "REMOVE UNKNOWN DEVICES COMPLETED"
+    Write-Host "REMOVE HIDDEN DEVICES COMPLETED"
     Write-Host "==================================="
     Write-Host ""
     Write-Host "For full registry changes to take effect,"

@@ -35,7 +35,7 @@ The script self-elevates. Update later with `Update-Script remove-hidden-devices
 **One-liner** instead (in any PowerShell — it self-elevates):
 
 ```powershell
-irm https://raw.githubusercontent.com/vadyaravadim/remove-hidden-devices/main/remove-hidden-devices.ps1 | iex
+irm https://github.com/vadyaravadim/remove-hidden-devices/releases/latest/download/remove-hidden-devices.ps1 | iex
 ```
 
 The script saves itself to `%USERPROFILE%\remove-hidden-devices.ps1` and reruns from there; an existing copy at that path that differs is kept as `.bak`.
@@ -61,16 +61,16 @@ Whichever method you use: click **Yes** on the UAC prompt (the script requests a
 
 ```
 ===================================
-REMOVE UNKNOWN DEVICES
+  REMOVE HIDDEN DEVICES vX.Y.Z
 ===================================
 
 Scanning for unknown devices...
 
 Found 3 unknown device(s):
 
-   → Generic USB Hub
-   → Unknown Device
-   → USB Composite Device
+   -> Generic USB Hub
+   -> Unknown Device
+   -> USB Composite Device
 
 ===================================
 Remove these devices? (Y/N): y

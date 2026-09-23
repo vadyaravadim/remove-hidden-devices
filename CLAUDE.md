@@ -58,5 +58,5 @@ machine and why it matters. A fix says what was broken and what it cost them.
 Do NOT bump `.VERSION` in the `.ps1` by hand - it is a placeholder the workflow overwrites, and a
 hand-edited value that disagrees with the tag would only mislead whoever reads the committed file.
 **The placeholder is `0.0.0` and must stay exactly that**: the banner reads its own `.VERSION` line and
-prints `dev build` for `0.0.0`, the stamped tag otherwise. It used to be `1.0.0`, which is also a real tag,
-so a clone of `main` was indistinguishable from the v1.0.0 release.
+prints `dev build` for `0.0.0`, the stamped tag otherwise. It used to be `1.0.0` - never a tag here, but a
+plausible release number, so a clone of `main` could pass for a released build.

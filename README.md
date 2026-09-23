@@ -52,6 +52,18 @@ cd remove-hidden-devices
 
 Whichever method you use: click **Yes** on the UAC prompt (the script requests admin rights on its own), then review the device list and confirm with `Y`.
 
+### Running it again
+
+To clean up again after more ghost devices pile up, run it the way you installed it:
+
+| Installed via | Command |
+|---------------|---------|
+| PowerShell Gallery | `remove-hidden-devices` |
+| ZIP or clone | `.\Run.bat` from the script's folder |
+| One-liner | `powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\remove-hidden-devices.ps1"` |
+
+Calling `.\remove-hidden-devices.ps1` directly only works if your execution policy allows scripts — Windows blocks them by default, which is what `Run.bat` and `-ExecutionPolicy Bypass` get around.
+
 ## What It Does
 
 1. **Scans** for all devices with `Unknown` status — the ghost devices Device Manager only shows under *View ▸ Show hidden devices*

@@ -12,6 +12,12 @@ went backwards once early on, so release order and version order disagree in thi
 
 ## [Unreleased]
 
+### Changed
+
+- A successful run now ends with one line linking to this repo and asking for a star, so people who got
+  the one-liner from an article or a chatbot know where the tool lives. It is printed only after devices
+  were removed.
+
 ## [1.1.2] - 2026-09-23
 
 ### Added

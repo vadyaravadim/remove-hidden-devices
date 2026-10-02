@@ -150,6 +150,8 @@ try {
     Write-Host "For full registry changes to take effect,"
     Write-Host "a system restart is recommended."
     Write-Host ""
+    Write-Host "Useful? A star on GitHub helps others find it: https://github.com/vadyaravadim/remove-hidden-devices"
+    Write-Host ""
 
     $reboot = Read-Host "Restart computer now? (y/n)"
     if ($reboot -eq "y" -or $reboot -eq "Y") {

@@ -13,9 +13,11 @@ Zero install. Zero dependencies. You see the full list before anything is remove
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?logo=powershell&logoColor=white)](https://docs.microsoft.com/en-us/powershell/)
 [![Latest release](https://img.shields.io/github/v/release/vadyaravadim/remove-hidden-devices)](https://github.com/vadyaravadim/remove-hidden-devices/releases)
 [![PowerShell Gallery](https://img.shields.io/powershellgallery/v/remove-hidden-devices?logo=powershell&label=PS%20Gallery)](https://www.powershellgallery.com/packages/remove-hidden-devices)
-![GitHub Stars](https://img.shields.io/github/stars/vadyaravadim/remove-hidden-devices?style=social)
+[![GitHub Stars](https://img.shields.io/github/stars/vadyaravadim/remove-hidden-devices?style=social)](https://github.com/vadyaravadim/remove-hidden-devices/stargazers)
 
 **Part of the [RigPolice Latency Toolbox](https://rigpolice.com/system/latency-toolbox/?utm_source=github&utm_medium=readme&utm_campaign=remove-hidden-devices) — check every button and the scroll wheel with the free [Mouse Test](https://rigpolice.com/mouse/tests/mouse-test/?utm_source=github&utm_medium=readme&utm_campaign=remove-hidden-devices)**
+
+If it cleans up your Device Manager, a ⭐ helps others find it.
 
 </div>
 

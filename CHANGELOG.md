@@ -24,6 +24,11 @@ went backwards once early on, so release order and version order disagree in thi
 
 ### Changed
 
+- You now pick which hidden devices to remove, in a grid (`Ctrl+A` for all), instead of answering one
+  `Y/N` for the whole list. The list can include things worth keeping: a monitor you plug into another
+  port shows up as a ghost too, and its entry holds settings such as an EDID override or a color profile,
+  which removal deletes for good. Without a desktop (Server Core) there is no grid, and the single `Y/N`
+  remains.
 - A successful run now ends with one line linking to this repo and asking for a star, so people who got
   the one-liner from an article or a chatbot know where the tool lives. It is printed only after devices
   were removed.
@@ -35,6 +40,15 @@ went backwards once early on, so release order and version order disagree in thi
 
 ### Fixed
 
+- The README's first install method, the PowerShell Gallery, failed in the Windows PowerShell 5.1 that
+  comes with Windows: `Install-Script` stopped with "Administrator rights are required", and the installed
+  script was then blocked by the default execution policy. The one-liner, which works in any PowerShell,
+  is now listed first, and the Gallery route is marked as PowerShell 7.
+- After the `irm | iex` one-liner, the PowerShell window you ran it from was left treating every error as
+  fatal, so a later command or another script in that window could stop on an error it would normally
+  shrug off. The one-liner no longer changes that setting in your window.
+- Run from a folder with `[` or `]` in its path, the script stopped at once with "A parameter cannot be
+  found that matches parameter name 'Raw'". It now runs from any folder.
 - The run printed "REMOVE HIDDEN DEVICES COMPLETED" even when `pnputil` failed to remove devices. It now
   checks each result and ends with "Removed X of N device(s)".
 - An error ended the run with exit code 0, and starting `Run.bat` from an administrator console asked you

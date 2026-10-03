@@ -10,6 +10,11 @@ registration for hardware that is not present; plugging the device back in makes
 Do not add a `.reg` snapshot mechanism here by analogy with the sibling tools - there is no prior state
 worth restoring.
 
+**Removal is picked in an `Out-GridView`, with a `Y/N` for the whole list only as the fallback.** A ghost
+entry can hold settings worth keeping (a monitor's EDID override or color profile), so all-or-nothing was a
+trap. Server Core has no `Out-GridView` and is the classic ghost-NIC case after VM moves, so keep the
+fallback rather than making the grid a hard dependency like the siblings do.
+
 **The script never restarts the computer.** It used to offer `Restart-Computer -Force`, which closes apps
 without saving. `pnputil /remove-device` returns 3010 when Windows needs a restart to finish removing a
 device; that is the only case in which the script asks for one. Exit codes 0 and 3010 both count as

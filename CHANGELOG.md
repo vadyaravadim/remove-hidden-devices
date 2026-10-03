@@ -12,11 +12,33 @@ went backwards once early on, so release order and version order disagree in thi
 
 ## [Unreleased]
 
+### Added
+
+- The README says how to run the cleanup again after more ghost devices pile up, with the exact command
+  for each install method (PowerShell Gallery, ZIP or clone, one-liner).
+- `-Status` lists the hidden devices and removes nothing. It needs no admin rights, so checking how many
+  ghosts piled up no longer costs a UAC prompt and a Y/N question you have to decline.
+- The device list shows each device's class (`USB`, `Net`, `Monitor`, ...), so you can spot a network
+  adapter or a monitor entry before you remove it. A device without a name shows its instance ID instead
+  of an empty line.
+
 ### Changed
 
 - A successful run now ends with one line linking to this repo and asking for a star, so people who got
   the one-liner from an article or a chatbot know where the tool lives. It is printed only after devices
   were removed.
+- The run no longer offers to restart the computer. Answering `y` restarted it with
+  `Restart-Computer -Force` after a 10-second countdown, which closes apps without saving your work. The
+  script now asks for a restart only when `pnputil` reports that Windows needs one to finish.
+- Hidden devices are picked by Windows' own "not present" flag instead of the `Unknown` status. On a normal
+  system both select the same devices; the flag is the one that actually means "not connected".
+
+### Fixed
+
+- The run printed "REMOVE HIDDEN DEVICES COMPLETED" even when `pnputil` failed to remove devices. It now
+  checks each result and ends with "Removed X of N device(s)".
+- An error ended the run with exit code 0, and starting `Run.bat` from an administrator console asked you
+  to press a key twice at the end.
 
 ## [1.1.2] - 2026-09-23
 

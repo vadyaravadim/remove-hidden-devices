@@ -39,16 +39,38 @@
     headsets, dongles and old GPUs - and removes them so Device Manager reflects
     only hardware that is actually connected. Self-elevates via UAC. Zero
     external dependencies.
+.PARAMETER Status
+    List the hidden devices and change nothing. Does not need Administrator
+    rights.
 .NOTES
     Requirements: Windows 10/11. The script requests administrator rights on
     its own (UAC prompt).
 .LINK
     https://github.com/vadyaravadim/remove-hidden-devices
 #>
-# No switches - an empty param() makes a stray argument (e.g. Run.bat -Foo)
-# fail at binding instead of being silently ignored.
 [CmdletBinding()]
-param()
+param(
+    [switch]$Status,
+    [switch]$Elevated   # internal: set by the self-elevation relaunch
+)
+
+$ErrorActionPreference = 'Stop'
+
+# Keep the self-elevated window open so the user can read the output.
+function Wait-IfElevatedWindow {
+    if ($Elevated) { Read-Host "Press Enter to close" | Out-Null }
+}
+
+# Without this, an unhandled error closes the self-elevated window before
+# the user can read the message.
+trap {
+    Write-Host "ERROR: $_" -ForegroundColor Red
+    Wait-IfElevatedWindow
+    # Under `irm | iex` this runs inside the user's own session, where `exit`
+    # would close their console - rethrow so only the piped script stops.
+    if ($PSCommandPath) { exit 1 }
+    break
+}
 
 # Launched via `irm <url> | iex` - no file on disk. Save the script to the
 # user profile and rerun it from there (the rerun handles elevation).
@@ -71,23 +93,27 @@ if (-not $PSCommandPath) {
     # the saved copy and violates the ASCII/no-BOM invariant the repo enforces.
     [IO.File]::WriteAllText($saved, $body, [Text.UTF8Encoding]::new($false))
     Write-Host "Script saved to: $saved" -ForegroundColor Cyan
-    powershell -NoProfile -ExecutionPolicy Bypass -File $saved
+    # @(): splatting a scalar string breaks powershell.exe -File switch binding on PS 5.1.
+    $fwd = @(if ($Status) { '-Status' })
+    powershell -NoProfile -ExecutionPolicy Bypass -File $saved @fwd
     # The rerun's exit code stays in $LASTEXITCODE for scripted callers.
     return
 }
 
-# Self-elevate via UAC when not running as Administrator
-if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    Write-Host "Not running as Administrator. Requesting elevation..."
+# ---- Everything below -Status removes devices: Administrator required ----
+$principal = New-Object Security.Principal.WindowsPrincipal(
+    [Security.Principal.WindowsIdentity]::GetCurrent())
+if (-not $Status -and -not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Write-Host "Not running as Administrator. Requesting elevation..." -ForegroundColor Yellow
     try {
         Start-Process -FilePath 'powershell.exe' -Verb RunAs -ArgumentList @(
-            '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$PSCommandPath`"")
+            '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$PSCommandPath`"", '-Elevated')
     } catch {
         # Not always a refusal (UAC service disabled, ...) - show the real cause.
-        Write-Host "ERROR: elevation failed ($($_.Exception.Message)). Run this script as Administrator."
-        pause
+        Write-Host "ERROR: elevation failed ($($_.Exception.Message)). Run this script as Administrator." -ForegroundColor Red
+        Read-Host "Press Enter to close" | Out-Null
     }
-    exit
+    return
 }
 
 # Read from this file's own PSScriptInfo block - the one place the version
@@ -102,83 +128,56 @@ Write-Host "  REMOVE HIDDEN DEVICES $version" -ForegroundColor Cyan
 Write-Host "===================================" -ForegroundColor Cyan
 Write-Host ""
 
-try {
-    # Get unknown devices
-    Write-Host "Scanning for unknown devices..."
-    $UnknownDevices = Get-PnpDevice | Where-Object { $_.Status -eq 'Unknown' }
-    
-    if ($UnknownDevices.Count -eq 0) {
-        Write-Host ""
-        Write-Host "No unknown devices found"
-        Write-Host ""
-        pause
-        exit
-    }
-    
+Write-Host "Scanning for hidden devices..."
+# Not present = what Device Manager shows only under View > Show hidden devices.
+$ghosts = @(Get-PnpDevice | Where-Object { -not $_.Present })
+if (-not $ghosts) {
     Write-Host ""
-    Write-Host "Found $($UnknownDevices.Count) unknown device(s):"
-    Write-Host ""
-    
-    $UnknownDevices | ForEach-Object { 
-        Write-Host "   -> $($_.FriendlyName)"
-    }
-    
-    Write-Host ""
-    Write-Host "==================================="
-    $Confirm = Read-Host "Remove these devices? (Y/N)"
-    
-    if ($Confirm -ne 'Y' -and $Confirm -ne 'y') {
-        Write-Host ""
-        Write-Host "Operation cancelled"
-        Write-Host ""
-        pause
-        exit
-    }
-    
-    Write-Host ""
-    Write-Host "Removing devices..."
-    
-    foreach ($Device in $UnknownDevices) {
-        pnputil /remove-device "$($Device.InstanceId)"
-    }
-    
-    Write-Host ""
-    Write-Host "==================================="
-    Write-Host "REMOVE HIDDEN DEVICES COMPLETED"
-    Write-Host "==================================="
-    Write-Host ""
-    Write-Host "For full registry changes to take effect,"
-    Write-Host "a system restart is recommended."
-    Write-Host ""
-    Write-Host "Useful? A star on GitHub helps others find it: https://github.com/vadyaravadim/remove-hidden-devices"
-    Write-Host ""
-
-    $reboot = Read-Host "Restart computer now? (y/n)"
-    if ($reboot -eq "y" -or $reboot -eq "Y") {
-        Write-Host ""
-        Write-Host "Restarting in 10 seconds..."
-        Write-Host "Press Ctrl+C to cancel"
-        
-        for ($i = 10; $i -gt 0; $i--) {
-            Write-Host "Restarting in $i seconds..." -NoNewline
-            Start-Sleep -Seconds 1
-            Write-Host "`r" -NoNewline
-        }
-        
-        Write-Host ""
-        Write-Host "Restarting..." -ForegroundColor Green
-        Restart-Computer -Force
-    } else {
-        Write-Host ""
-        Write-Host "Restart cancelled." -ForegroundColor Yellow
-        Write-Host "Don't forget to restart your computer later"
-        Write-Host "for full registry changes to take effect!"
-    }
-    
-} catch {
-    Write-Host ""
-    Write-Host "ERROR: $($_.Exception.Message)"
-    Write-Host ""
+    Write-Host "No hidden devices found." -ForegroundColor Green
+    Wait-IfElevatedWindow
+    return
 }
 
-pause
+Write-Host ""
+Write-Host "Found $($ghosts.Count) hidden device(s):"
+Write-Host ""
+foreach ($d in $ghosts) {
+    # Some ghosts carry no name; the instance ID still identifies them.
+    $name = if ($d.FriendlyName) { $d.FriendlyName } else { $d.InstanceId }
+    Write-Host ("   -> {0}{1}" -f $name, $(if ($d.Class) { "  [$($d.Class)]" }))
+}
+Write-Host ""
+
+if ($Status) { Wait-IfElevatedWindow; return }
+
+Write-Host "==================================="
+if ((Read-Host "Remove these devices? (Y/N)") -notmatch '^y') {
+    Write-Host ""
+    Write-Host "Cancelled. No changes made." -ForegroundColor Yellow
+    Wait-IfElevatedWindow
+    return
+}
+
+Write-Host ""
+Write-Host "Removing devices..."
+$removed = 0
+$needReboot = $false
+foreach ($d in $ghosts) {
+    pnputil /remove-device "$($d.InstanceId)"
+    # 3010 = removed, and Windows needs a restart to finish (documented pnputil code).
+    if ($LASTEXITCODE -in 0, 3010) { $removed++ }
+    if ($LASTEXITCODE -eq 3010) { $needReboot = $true }
+}
+
+Write-Host ""
+if ($removed -eq $ghosts.Count) {
+    Write-Host "Removed $removed of $($ghosts.Count) device(s)." -ForegroundColor Green
+} else {
+    Write-Host "Removed $removed of $($ghosts.Count) device(s) - pnputil says why the rest failed above." -ForegroundColor Yellow
+}
+if ($needReboot) { Write-Host "Restart Windows to finish removing them." -ForegroundColor Yellow }
+if ($removed) {
+    Write-Host ""
+    Write-Host "Useful? A star on GitHub helps others find it: https://github.com/vadyaravadim/remove-hidden-devices"
+}
+Wait-IfElevatedWindow

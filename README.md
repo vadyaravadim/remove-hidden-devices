@@ -4,7 +4,7 @@
 
 **Clean out ghost devices. Declutter Device Manager. One confirmation.**
 
-An open-source PowerShell script that removes **ghost / hidden devices** (devices with `Unknown` status) from Windows Device Manager — leftovers from every USB stick, headset, and dongle you ever plugged in.
+An open-source PowerShell script that removes **ghost / hidden devices** (devices that are no longer present) from Windows Device Manager — leftovers from every USB stick, headset, and dongle you ever plugged in.
 Zero install. Zero dependencies. You see the full list before anything is removed.
 
 [![lint](https://img.shields.io/github/actions/workflow/status/vadyaravadim/remove-hidden-devices/lint.yml?label=lint&logo=powershell)](https://github.com/vadyaravadim/remove-hidden-devices/actions/workflows/lint.yml)
@@ -64,27 +64,29 @@ To clean up again after more ghost devices pile up, run it the way you installed
 | ZIP or clone | `.\Run.bat` from the script's folder |
 | One-liner | `powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\remove-hidden-devices.ps1"` |
 
+**Just looking?** Add `-Status` to any of these commands: it lists the hidden devices and removes nothing, so it needs no admin rights.
+
 Calling `.\remove-hidden-devices.ps1` directly only works if your execution policy allows scripts — Windows blocks them by default, which is what `Run.bat` and `-ExecutionPolicy Bypass` get around.
 
 ## What It Does
 
-1. **Scans** for all devices with `Unknown` status — the ghost devices Device Manager only shows under *View ▸ Show hidden devices*
-2. **Shows the full list** and asks for confirmation — nothing is touched until you say `Y`
-3. **Removes** every listed device via the built-in `pnputil /remove-device`
-4. **Offers a reboot** so the registry changes fully take effect
+1. **Scans** for all devices that are no longer present — the ghost devices Device Manager only shows under *View ▸ Show hidden devices*
+2. **Shows the full list** with each device's class and asks for confirmation — nothing is touched until you say `Y`
+3. **Removes** every listed device via the built-in `pnputil /remove-device` and reports how many were removed
+4. **Asks for a restart only if Windows needs one** to finish — `pnputil` reports that per device
 
 ```
 ===================================
   REMOVE HIDDEN DEVICES vX.Y.Z
 ===================================
 
-Scanning for unknown devices...
+Scanning for hidden devices...
 
-Found 3 unknown device(s):
+Found 3 hidden device(s):
 
-   -> Generic USB Hub
-   -> Unknown Device
-   -> USB Composite Device
+   -> Generic USB Hub  [USB]
+   -> HID-compliant mouse  [Mouse]
+   -> USB Composite Device  [USB]
 
 ===================================
 Remove these devices? (Y/N): y
@@ -113,12 +115,12 @@ Windows keeps a registry entry for **every device ever connected** — each USB 
 
 The script uses two documented, built-in tools — no third-party binaries:
 
-- [`Get-PnpDevice`](https://learn.microsoft.com/en-us/powershell/module/pnpdevice/get-pnpdevice) lists all Plug and Play devices; devices that are no longer present report `Status = Unknown` — the same ghost entries Device Manager greys out under *Show hidden devices*
+- [`Get-PnpDevice`](https://learn.microsoft.com/en-us/powershell/module/pnpdevice/get-pnpdevice) lists all Plug and Play devices; devices that are no longer present report `Present = False` — the same ghost entries Device Manager greys out under *Show hidden devices*
 - [`pnputil /remove-device <InstanceId>`](https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/pnputil-command-syntax) removes each device node from the system
 
 ## Verify
 
-After the reboot, open **Device Manager** → **View ▸ Show hidden devices**: the greyed-out ghost entries are gone. Or run the script again — it reports `No unknown devices found`.
+Open **Device Manager** → **View ▸ Show hidden devices**: the greyed-out ghost entries are gone. Or run the script with `-Status` — it reports `No hidden devices found.`
 
 ## Full Cleanup: Leftover Drivers
 
@@ -135,15 +137,15 @@ Registry entries for hardware that was connected at some point but is not presen
 
 ### Is it safe to remove them?
 
-The script only targets devices with `Unknown` status — i.e. not currently present. Hardware that is connected and working is not in the list. Still, **review the list before confirming**: removal is permanent, there is no undo file.
+The script only targets devices Windows reports as not present. Hardware that is connected and working is not in the list. Still, **review the list before confirming**: removal is permanent, there is no undo file.
 
 ### What happens if I remove a device I still use sometimes?
 
 Nothing dramatic — Windows re-detects it and reinstalls the driver the next time you plug it in. You may need to redo per-device settings (e.g. a manually assigned COM port number).
 
-### Why does it ask for a restart?
+### Do I need to restart?
 
-Device removal touches the registry hive that Windows reads at boot. The changes apply fully after a restart.
+Usually not. If Windows needs a restart to finish removing a device, `pnputil` reports it and the script tells you to restart. It never restarts the computer on its own.
 
 ### How is this different from clicking through Device Manager manually?
 

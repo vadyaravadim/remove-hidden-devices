@@ -72,6 +72,14 @@ hand-edited value that disagrees with the tag would only mislead whoever reads t
 prints `dev build` for `0.0.0`, the stamped tag otherwise. It used to be `1.0.0` - never a tag here, but a
 plausible release number, so a clone of `main` could pass for a released build.
 
+## README claims
+
+**The README claims only what a published measurement shows** (the companion article, `bench/results`).
+An effect nobody measured, on frame times, DPC latency, stutter or input lag, is attributed to the guides
+that recommend the tweak or marked as not measured, never stated as fact, and the star ask names no
+effect. Frame time and ISR/DPC time are not input lag. The method lives in rigpolice's
+`.claude/rules/bench-methodology.md`, section "Conclusions".
+
 ## The RigPolice pages that mirror this script
 
 - **The hub card.** `src/lib/latency-toolbox.ts` in the rigpolice repo holds this script's card on

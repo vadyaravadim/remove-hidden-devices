@@ -96,12 +96,7 @@ Removing 3 device(s)...
 
 Windows keeps a registry entry for **every device ever connected** — each USB stick, phone, headset, VM adapter, and docking station stays behind as a hidden "ghost" entry after you unplug it. Over the years they pile up into hundreds of stale entries.
 
-**Symptoms this fixes:**
-
-- Cluttered Device Manager full of greyed-out duplicates (`USB Composite Device`, `Unknown Device`, …)
-- COM port numbers climbing endlessly (`COM14`, `COM15`, …) because old ones are still reserved
-- Driver conflicts when a re-plugged device binds to a stale entry instead of a fresh one
-- Slower device enumeration on boot and plug-in
+**What it fixes:** a Device Manager full of greyed-out duplicates (`USB Composite Device`, `Unknown Device`, …). Nothing more: it makes no speed or latency claim.
 
 ## Requirements
 
@@ -153,11 +148,11 @@ Device Manager makes you right-click ▸ Uninstall each ghost entry one by one �
 
 ## Related
 
-- [CPU Parking Disabler](https://github.com/vadyaravadim/cpu-parking-disabler) — disable CPU core parking on Windows 10/11 to fix micro-stutters and input lag
-- [MSI Mode Utility](https://github.com/vadyaravadim/msi-mode-utility) — enable MSI mode (Message Signaled Interrupts) for GPU, USB, network & audio devices to cut DPC latency and input lag
-- [Interrupt Affinity Utility](https://github.com/vadyaravadim/interrupt-affinity-utility) — pin GPU, network, USB & audio interrupts to specific CPU cores (P/E-core aware) to tame DPC latency
+- [CPU Parking Disabler](https://github.com/vadyaravadim/cpu-parking-disabler) — disable CPU core parking on Windows 10/11, with the parked-core count shown before and after
+- [MSI Mode Utility](https://github.com/vadyaravadim/msi-mode-utility) — enable MSI mode (Message Signaled Interrupts) for GPU, USB, network & audio devices
+- [Interrupt Affinity Utility](https://github.com/vadyaravadim/interrupt-affinity-utility) — pin GPU, network, USB & audio interrupts to specific CPU cores (P/E-core aware)
 - [Timer Resolution Utility](https://github.com/vadyaravadim/timer-resolution-utility) — set 0.5 ms timer resolution, disable dynamic tick, un-force HPET — with a built-in Sleep(1) benchmark
-- [GameDVR & FSO Disabler](https://github.com/vadyaravadim/gamedvr-fso-disabler) — disable Game DVR / Xbox Game Bar capture and Fullscreen Optimizations to fix capture stutters and frame drops
+- [GameDVR & FSO Disabler](https://github.com/vadyaravadim/gamedvr-fso-disabler) — disable Game DVR / Xbox Game Bar capture and Fullscreen Optimizations on Windows 10/11
 
 Same idea across the series: one transparent PowerShell script, no binaries, you see exactly what changes.
 

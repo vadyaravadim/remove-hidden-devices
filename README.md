@@ -7,7 +7,7 @@
 An open-source PowerShell script that removes **ghost / hidden devices** (devices that are no longer present) from Windows Device Manager — leftovers from every USB stick, headset, and dongle you ever plugged in.
 Zero install. Zero dependencies. You see the full list before anything is removed.
 
-[![lint](https://img.shields.io/github/actions/workflow/status/vadyaravadim/remove-hidden-devices/lint.yml?label=lint&logo=powershell)](https://github.com/vadyaravadim/remove-hidden-devices/actions/workflows/lint.yml)
+[![ci](https://img.shields.io/github/actions/workflow/status/vadyaravadim/remove-hidden-devices/ci.yml?label=ci&logo=powershell)](https://github.com/vadyaravadim/remove-hidden-devices/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows)](https://www.microsoft.com/windows)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?logo=powershell&logoColor=white)](https://docs.microsoft.com/en-us/powershell/)

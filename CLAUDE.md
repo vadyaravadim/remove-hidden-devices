@@ -30,8 +30,8 @@ parser chokes on the leading U+FEFF. This shipped as a bug once already.
 
 The tags read `v1.1.0` (2026-07-18) -> `v1.0.1` (2026-07-19) -> `v1.1.1` (2026-07-20): 1.0.1 is a
 DESCENDANT of 1.1.0. `CHANGELOG.md` is therefore ordered by release, not by version, and says so. Do not
-"fix" the ordering into semver order - it would misstate what actually shipped when. The next tag has to be
-above 1.1.1.
+"fix" the ordering into semver order - it would misstate what actually shipped when. A new version has to be
+higher than every released one, not only than the newest tag; the release job does not check the order.
 
 ## The CI gates
 

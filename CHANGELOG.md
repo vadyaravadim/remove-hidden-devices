@@ -13,6 +13,13 @@ went backwards once early on, so release order and version order disagree in thi
 
 ## [Unreleased]
 
+### Added
+
+- The README's Quick Start says how to check a downloaded script before running it, and SECURITY.md now starts
+  with `gh release verify-asset`, which works for every immutable release whichever workflow built it.
+- The README FAQ says how to remove the script and the files it leaves behind.
+- `Get-Help .\remove-hidden-devices.ps1 -Examples` shows how to run the script and each of its switches.
+
 ### Changed
 
 - Windows Server Core is no longer supported for removal. The one Y/N question the README promised there never
@@ -25,12 +32,15 @@ went backwards once early on, so release order and version order disagree in thi
 - Checking that a downloaded script was built from this repository takes a new `gh attestation verify` command
   from this release on: releases are now built by the release workflow all six RigPolice scripts share.
   SECURITY.md has both commands.
+- On the PowerShell Gallery the script page links this changelog as its release notes, shows the license's
+  copyright line, and lists the script for both Windows PowerShell and PowerShell 7.
 
 ### Fixed
 
 - On Windows 10 builds before 2004 (LTSC 2019, Server 2019) the script let you pick devices, then failed on
   every one because `pnputil /remove-device` does not exist there, and blamed pnputil. It now says before the
   grid that removing needs Windows 10 2004 (build 19041) or later; `-Status` still lists the ghosts.
+- SECURITY.md linked a README section that no longer exists; it now links "Do I need to restart?".
 
 ## [1.2.0] - 2026-10-03
 

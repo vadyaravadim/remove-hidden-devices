@@ -1,5 +1,7 @@
 # Remove Hidden Devices
 
+Maintainer notes for Claude Code and the maintainer. Contributors start with [CONTRIBUTING.md](https://github.com/vadyaravadim/.github/blob/main/CONTRIBUTING.md); `rigpolice`, named below, is the maintainer's private website repository.
+
 A single self-contained PowerShell script (`remove-hidden-devices.ps1`) that enumerates non-present
 devices - the ghost entries left behind by unplugged USB sticks, headsets, dongles and old GPUs - and
 removes them from Device Manager. Part of a family of six single-script Windows tuning tools that share

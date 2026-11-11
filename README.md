@@ -68,6 +68,8 @@ To clean up again after more ghost devices pile up, run it the way you installed
 
 Calling `.\remove-hidden-devices.ps1` directly only works if your execution policy allows scripts — Windows blocks them by default, which is what `Run.bat` and `-ExecutionPolicy Bypass` get around.
 
+**Check it before it runs:** download `remove-hidden-devices.ps1` from the [latest release](https://github.com/vadyaravadim/remove-hidden-devices/releases/latest), verify it as [SECURITY.md](SECURITY.md#verifying-a-release) shows, then run that file with `powershell -ExecutionPolicy Bypass -File .\remove-hidden-devices.ps1`.
+
 ## What It Does
 
 1. **Scans** for all devices that are no longer present — the ghost devices Device Manager only shows under *View ▸ Show hidden devices*
@@ -145,6 +147,10 @@ Usually not. If Windows needs a restart to finish removing a device, `pnputil` r
 ### How is this different from clicking through Device Manager manually?
 
 Device Manager makes you right-click ▸ Uninstall each ghost entry one by one — painful with hundreds of them. This script removes the ones you pick in one pass, using the same underlying mechanism.
+
+### How do I remove the script itself?
+
+There are no undo files to keep. With the one-liner, delete `%USERPROFILE%\remove-hidden-devices.ps1` and a `remove-hidden-devices.ps1.bak` if there is one; with the ZIP or a clone, the folder; from the PowerShell Gallery, run `Uninstall-Script remove-hidden-devices`. The script installs nothing else.
 
 ## Related
 

@@ -38,25 +38,35 @@ Out of scope:
   reinstall it, per the
   [FAQ](README.md#what-happens-if-i-remove-a-device-i-still-use-sometimes)
 - Needing a restart for the removal to fully apply — documented in the
-  [FAQ](README.md#why-does-it-ask-for-a-restart)
+  [FAQ](README.md#do-i-need-to-restart)
 - Driver packages left in the DriverStore — documented in
   [Full Cleanup](README.md#full-cleanup-leftover-drivers)
 
 ## Verifying a Release
 
 Each release publishes `SHA256SUMS.txt` and Sigstore build provenance. Verify a
-download before running it:
+download before running it.
+
+Releases from v1.1.2 on are immutable: when one is published, GitHub itself attests
+its tag, its commit and every file attached to it. This check works for every one of
+them, whichever workflow built the file. Without a tag it checks against the latest
+release; to check an older one, put its tag (`vX.Y.Z`) before the file name. It needs
+the [GitHub CLI](https://cli.github.com/):
+
+```powershell
+gh release verify-asset .\remove-hidden-devices.ps1 -R vadyaravadim/remove-hidden-devices
+```
+
+Without the GitHub CLI, compare the file's hash against the one in the corresponding
+[release](https://github.com/vadyaravadim/remove-hidden-devices/releases):
 
 ```powershell
 Get-FileHash .\remove-hidden-devices.ps1 -Algorithm SHA256
 ```
 
-Compare the hash against the one in the corresponding
-[release](https://github.com/vadyaravadim/remove-hidden-devices/releases).
-
 The hash only proves the file matches the release page. The provenance proves the
-file was built from the tagged commit of this repository by the release workflow
-shared by the six RigPolice Latency Toolbox scripts,
+file was built from the tagged commit of this repository. Releases after v1.2.0 are
+built by the release workflow shared by the six RigPolice Latency Toolbox scripts,
 [`vadyaravadim/latency-toolbox-ci`](https://github.com/vadyaravadim/latency-toolbox-ci) - check it
 with the [GitHub CLI](https://cli.github.com/):
 
@@ -72,12 +82,4 @@ Releases v1.0.1 and v1.1.1 to v1.2.0 were built by this repository's own `releas
 
 ```powershell
 gh attestation verify .\remove-hidden-devices.ps1 -R vadyaravadim/remove-hidden-devices
-```
-
-Releases from v1.1.2 on are immutable: when one is published, GitHub itself attests
-its tag, its commit and every file attached to it. That check does not depend on
-which workflow built the file:
-
-```powershell
-gh release verify-asset vX.Y.Z .\remove-hidden-devices.ps1 -R vadyaravadim/remove-hidden-devices
 ```

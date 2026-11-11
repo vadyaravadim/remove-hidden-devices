@@ -8,9 +8,9 @@
 
 .COMPANYNAME
 
-.COPYRIGHT
+.COPYRIGHT Copyright (c) 2025 vadyaravadim
 
-.TAGS Windows Windows10 Windows11 DeviceManager GhostDevices HiddenDevices Cleanup PnP Drivers Tweak
+.TAGS Windows Windows10 Windows11 DeviceManager GhostDevices HiddenDevices Cleanup PnP Drivers Tweak PSEdition_Desktop PSEdition_Core
 
 .LICENSEURI https://github.com/vadyaravadim/remove-hidden-devices/blob/main/LICENSE
 
@@ -24,7 +24,7 @@
 
 .EXTERNALSCRIPTDEPENDENCIES
 
-.RELEASENOTES
+.RELEASENOTES https://github.com/vadyaravadim/remove-hidden-devices/blob/main/CHANGELOG.md
 
 .PRIVATEDATA
 
@@ -45,6 +45,16 @@
 .NOTES
     Requirements: Windows 10 2004 (build 19041) or later, or Windows 11. The script requests
     administrator rights on its own (UAC prompt).
+
+.EXAMPLE
+    .\remove-hidden-devices.ps1
+
+    Double-click Run.bat, or right-click this file > Run with PowerShell.
+    No parameters needed - it elevates itself.
+
+.EXAMPLE
+    .\remove-hidden-devices.ps1 -Status
+
 .LINK
     https://github.com/vadyaravadim/remove-hidden-devices
 #>

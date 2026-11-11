@@ -43,8 +43,8 @@
     List the hidden devices and change nothing. Does not need Administrator
     rights.
 .NOTES
-    Requirements: Windows 10/11. The script requests administrator rights on
-    its own (UAC prompt).
+    Requirements: Windows 10 2004 (build 19041) or later, or Windows 11. The script requests
+    administrator rights on its own (UAC prompt).
 .LINK
     https://github.com/vadyaravadim/remove-hidden-devices
 #>
@@ -152,19 +152,28 @@ Write-Host ""
 
 if ($Status) { Wait-IfElevatedWindow; return }
 
-# Picked, not all-or-nothing: a ghost entry can carry settings worth keeping
-# (a monitor's EDID override or color profile, a COM port number). Without a
-# desktop (Server Core - ghost NICs after VM moves) there is no grid, so the
-# all-or-nothing question stays as the fallback.
-if (Get-Command Out-GridView -ErrorAction SilentlyContinue) {
-    $targets = @($ghosts |
-        ForEach-Object { [PSCustomObject]@{ Name = $(if ($_.FriendlyName) { $_.FriendlyName } else { $_.InstanceId }); Class = $_.Class; InstanceId = $_.InstanceId } } |
-        Sort-Object Class, Name |
-        Out-GridView -Title 'Select hidden devices to remove (Ctrl+A = all, Ctrl-click = several, Cancel = none)' -PassThru)
-} else {
-    Write-Host "==================================="
-    $targets = if ((Read-Host "Remove these devices? (Y/N)") -match '^y') { $ghosts } else { @() }
+$removeDeviceMinBuild = 19041
+$build = [int](Get-CimInstance Win32_OperatingSystem).BuildNumber
+if ($build -lt $removeDeviceMinBuild) {
+    Write-Host "Removing devices needs Windows 10 2004 (build $removeDeviceMinBuild) or later: pnputil on build $build has no /remove-device. Nothing was changed; -Status still lists them." -ForegroundColor Yellow
+    Wait-IfElevatedWindow
+    return
 }
+$serverLevelsKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Server\ServerLevels'
+$serverLevels = Get-ItemProperty -LiteralPath $serverLevelsKey -ErrorAction SilentlyContinue
+$serverCore = $serverLevels -and $serverLevels.'Server-Gui-Shell' -ne 1
+if ($serverCore) {
+    Write-Host "Removing devices needs a Windows edition with a desktop: Windows Server Core is not supported. Nothing was changed; -Status still lists the ghost devices." -ForegroundColor Yellow
+    Wait-IfElevatedWindow
+    return
+}
+
+# Picked, not all-or-nothing: a ghost entry can carry settings worth keeping
+# (a monitor's EDID override or color profile, a COM port number).
+$targets = @($ghosts |
+    ForEach-Object { [PSCustomObject]@{ Name = $(if ($_.FriendlyName) { $_.FriendlyName } else { $_.InstanceId }); Class = $_.Class; InstanceId = $_.InstanceId } } |
+    Sort-Object Class, Name |
+    Out-GridView -Title 'Select hidden devices to remove (Ctrl+A = all, Ctrl-click = several, Cancel = none)' -PassThru)
 if (-not $targets) {
     Write-Host ""
     Write-Host "Cancelled. No changes made." -ForegroundColor Yellow

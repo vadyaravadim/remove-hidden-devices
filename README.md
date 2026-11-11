@@ -71,7 +71,7 @@ Calling `.\remove-hidden-devices.ps1` directly only works if your execution poli
 ## What It Does
 
 1. **Scans** for all devices that are no longer present — the ghost devices Device Manager only shows under *View ▸ Show hidden devices*
-2. **Shows the full list** with each device's class, then a grid to pick which ones to remove — `Ctrl+A` for all, **Cancel** touches nothing. Without a desktop (Server Core) there is no grid, and it asks one `Y/N` for the whole list instead
+2. **Shows the full list** with each device's class, then a grid to pick which ones to remove — `Ctrl+A` for all, **Cancel** touches nothing. On Windows Server Core it lists the ghost devices but does not remove them: the picker needs a desktop
 3. **Removes** the devices you picked via the built-in `pnputil /remove-device` and reports how many were removed
 4. **Asks for a restart only if Windows needs one** to finish — `pnputil` reports that per device
 
@@ -102,7 +102,7 @@ Windows keeps a registry entry for **every device ever connected** — each USB 
 
 | | |
 |---|---|
-| **Windows** | 10, 11 |
+| **Windows** | 10 version 2004 (build 19041) or later, 11. Older builds and Windows Server Core list ghost devices but cannot remove them |
 | **PowerShell** | Windows PowerShell 5.1+ (ships with Windows 10/11) |
 | **Rights** | Administrator (the script self-elevates via UAC) |
 

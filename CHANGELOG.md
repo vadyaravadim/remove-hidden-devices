@@ -15,6 +15,9 @@ went backwards once early on, so release order and version order disagree in thi
 
 ### Changed
 
+- Windows Server Core is no longer supported for removal. The one Y/N question the README promised there never
+  appeared - the run stopped with a raw error. The script now says up front that removing needs a Windows
+  edition with a desktop; `-Status` still lists the ghost devices.
 - Releases are tagged only after every check has passed on the commit they are built from, and the
   PowerShell Gallery package always holds the same file as the GitHub release.
 - Before a release is published, the script is now checked against the syntax and .NET types of Windows
@@ -22,6 +25,12 @@ went backwards once early on, so release order and version order disagree in thi
 - Checking that a downloaded script was built from this repository takes a new `gh attestation verify` command
   from this release on: releases are now built by the release workflow all six RigPolice scripts share.
   SECURITY.md has both commands.
+
+### Fixed
+
+- On Windows 10 builds before 2004 (LTSC 2019, Server 2019) the script let you pick devices, then failed on
+  every one because `pnputil /remove-device` does not exist there, and blamed pnputil. It now says before the
+  grid that removing needs Windows 10 2004 (build 19041) or later; `-Status` still lists the ghosts.
 
 ## [1.2.0] - 2026-10-03
 

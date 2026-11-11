@@ -11,16 +11,24 @@ registration for hardware that is not present; plugging the device back in makes
 Do not add a `.reg` snapshot mechanism here by analogy with the sibling tools - there is no prior state
 worth restoring.
 
-**Removal is picked in an `Out-GridView`, with a `Y/N` for the whole list only as the fallback.** A ghost
-entry can hold settings worth keeping (a monitor's EDID override or color profile), so all-or-nothing was a
-trap. Server Core has no `Out-GridView` and is the classic ghost-NIC case after VM moves, so keep the
-fallback rather than making the grid a hard dependency like the siblings do.
+**Removal is picked in an `Out-GridView`, and Windows Server Core is not supported for removal (owner
+decision, 2026-11-11).** A ghost entry can hold settings worth keeping (a monitor's EDID override or color
+profile), so all-or-nothing was a trap. On Server Core the cmdlet resolves but cannot open its window
+(`Microsoft.PowerShell.GraphicalHost`): the old `Get-Command` check passed there, the `Y/N` fallback for the
+whole list never ran, and the run died in the `trap`. The script now stops before the grid when
+`HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Server\ServerLevels` exists without `Server-Gui-Shell` = 1
+(hyphenated, as Microsoft's "Determining Whether Server Core Is Running" spells it); `-Status` still lists the
+ghosts there.
 
 **The script never restarts the computer.** It used to offer `Restart-Computer -Force`, which closes apps
 without saving. `pnputil /remove-device` returns 3010 when Windows needs a restart to finish removing a
 device; that is the only case in which the script asks for one. Exit codes 0 and 3010 both count as
 removed. **`-Status` skips elevation on purpose** - it only lists, and a UAC prompt for a read-only check is
 what makes people stop checking.
+
+**Removal needs Windows 10 2004 (build 19041): `pnputil /remove-device` does not exist before it.** The
+script reads the build from `Win32_OperatingSystem` - not `[Environment]::OSVersion`, so a test can fake an
+old build - and stops before the grid when it is lower; `-Status` still lists the ghosts there.
 
 **A piped run saves the script into the user profile with no BOM.** `[Text.UTF8Encoding]::new($false)` is
 load-bearing: a BOM in the saved copy breaks running that copy through `irm | iex` later, because the
@@ -60,9 +68,11 @@ pushed to `main`. The preview leg is not required: it only warns.
   would catch it. `PSUseCompatibleCommands` stays off: it flagged every Pester 5 parameter against the
   Pester 3.4 built into 5.1.
 - **The Pester gate runs every tracked `*.Tests.ps1` under Windows PowerShell 5.1 and the runner's `pwsh`,
-  and both legs block the release.** This repo has no test file yet, so the gate passes with a notice. A test
-  added later runs there too, so test code has to stay 5.1-safe: `Run.bat` and the elevated relaunch always
-  run 5.1.
+  and both legs block the release.** `tests/remove-hidden-devices.Tests.ps1` runs the `irm | iex` rerun
+  against a stub script, and its whole-script tests run a copy in `TestDrive` with every device and grid
+  command mocked and `pnputil` stubbed on `PATH`, only when elevated, after proving the mocks reach a script
+  started with `&`; keep new tests that way, contributors run them on their own PCs. Test code stays 5.1-safe:
+  `Run.bat` and the elevated relaunch always run 5.1.
 
 ## Release - the newest CHANGELOG section is the version
 

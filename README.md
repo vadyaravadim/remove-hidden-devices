@@ -134,7 +134,7 @@ Registry entries for hardware that was connected at some point but is not presen
 
 ### Is it safe to remove them?
 
-The script only targets devices Windows reports as not present. Hardware that is connected and working is not in the list. Still, **pick only what you want gone**: removal is permanent, there is no undo file. A monitor you plug into another port, or switch off, shows up as a ghost too, and its entry holds per-monitor settings such as an EDID override or a color profile.
+The script only targets devices Windows reports as not present. Hardware that is connected and working is not in the list, and a device that is connected again while the list is open is skipped. Still, **pick only what you want gone**: removal is permanent, there is no undo file. A monitor you plug into another port, or switch off, shows up as a ghost too, and its entry holds per-monitor settings such as an EDID override or a color profile.
 
 ### What happens if I remove a device I still use sometimes?
 

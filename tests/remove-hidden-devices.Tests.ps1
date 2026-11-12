@@ -43,7 +43,8 @@ Describe 'whole-script run on a machine with one ghost device' {
         $script:copy = Join-Path $TestDrive 'remove-hidden-devices.ps1'
         Copy-Item -LiteralPath $scriptPath -Destination $copy
         $script:stub = Join-Path $TestDrive 'pnputil.cmd'
-        Set-Content -LiteralPath $stub -Value "@echo stub pnputil`r`n@exit /b 1" -Encoding Ascii
+        Set-Content -LiteralPath $stub -Value "@echo off`r`n>>`"%~dp0pnputil.log`" echo %*`r`nexit /b 0" -Encoding Ascii
+        $script:pnputilLog = Join-Path $TestDrive 'pnputil.log'
         $script:savedPath = $env:PATH
         $env:PATH = "$TestDrive;$env:PATH"
         if ((Get-Command pnputil).Source -ne $stub) {
@@ -64,6 +65,7 @@ Describe 'whole-script run on a machine with one ghost device' {
     }
 
     BeforeEach {
+        Remove-Item -LiteralPath $pnputilLog -ErrorAction SilentlyContinue
         Mock Get-PnpDevice { [pscustomobject]@{ Present = $false; FriendlyName = 'Fake ghost'; InstanceId = 'USB\VID_FAKE\0'; Class = 'USB' } }
         Mock Out-GridView { }
         Mock Read-Host { }
@@ -92,6 +94,24 @@ Describe 'whole-script run on a machine with one ghost device' {
         Mock Get-CimInstance { [pscustomobject]@{ BuildNumber = '19041' } } -ParameterFilter { $ClassName -eq 'Win32_OperatingSystem' }
         & $copy
         Should -Invoke Out-GridView -Times 1 -Exactly
+    }
+
+    It 'removes a picked device that is still not present' -Skip:(-not $isAdmin) {
+        Mock Get-CimInstance { [pscustomobject]@{ BuildNumber = '19041' } } -ParameterFilter { $ClassName -eq 'Win32_OperatingSystem' }
+        Mock Out-GridView { [pscustomobject]@{ Name = 'Fake ghost'; Class = 'USB'; InstanceId = 'USB\VID_FAKE\0' } }
+        & $copy
+        $calls = @(Get-Content -LiteralPath $pnputilLog)
+        $calls.Count | Should -Be 1
+        $calls[0] | Should -Match '^/remove-device "?USB\\VID_FAKE\\0"?\s*$'
+    }
+
+    It 'skips a picked device that was connected again while the list was open' -Skip:(-not $isAdmin) {
+        Mock Get-CimInstance { [pscustomobject]@{ BuildNumber = '19041' } } -ParameterFilter { $ClassName -eq 'Win32_OperatingSystem' }
+        Mock Out-GridView { [pscustomobject]@{ Name = 'Fake ghost'; Class = 'USB'; InstanceId = 'USB\VID_FAKE\0' } }
+        Mock Get-PnpDevice { [pscustomobject]@{ Present = $true; FriendlyName = 'Fake ghost'; InstanceId = 'USB\VID_FAKE\0'; Class = 'USB' } } -ParameterFilter { $InstanceId -contains 'USB\VID_FAKE\0' }
+        & $copy
+        $pnputilLog | Should -Not -Exist -Because 'removing a device that is connected again drops its settings'
+        Should -Invoke Write-Host -Times 1 -Exactly -ParameterFilter { "$Object" -like 'Skipped 1 device(s) that were connected again while the list was open*' }
     }
 }
 

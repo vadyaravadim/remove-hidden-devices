@@ -43,6 +43,10 @@ went backwards once early on, so release order and version order disagree in thi
   every one because `pnputil /remove-device` does not exist there, and blamed pnputil. It now says before the
   grid that removing needs Windows 10 2004 (build 19041) or later; `-Status` still lists the ghosts.
 - SECURITY.md linked a README section that no longer exists; it now links "Do I need to restart?".
+- A device connected again while the list was open, such as a monitor switched back on or a USB device
+  plugged back into the same port, was removed anyway, along with its settings (an EDID override, a color
+  profile, a COM port number), and stopped working until you replugged it. The script now checks each picked
+  device right before removing it and skips the ones that are connected.
 
 ## [1.2.0] - 2026-10-03
 

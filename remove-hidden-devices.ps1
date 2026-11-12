@@ -194,8 +194,19 @@ if (-not $targets) {
 Write-Host ""
 Write-Host "Removing $($targets.Count) device(s)..."
 $removed = 0
+$skipped = 0
 $needReboot = $false
 foreach ($d in $targets) {
+    # The grid can stay open for minutes: a monitor switched back on, or a USB
+    # device plugged back into the same port, is present again by now, and
+    # removing it would drop its settings. pnputil has no "only if not present"
+    # switch. An ID that is gone entirely falls through: pnputil reports it.
+    $now = Get-PnpDevice -InstanceId $d.InstanceId -ErrorAction SilentlyContinue
+    if ($now.Present) {
+        Write-Host ("   Skipped {0}: it is connected now." -f $d.Name) -ForegroundColor Yellow
+        $skipped++
+        continue
+    }
     pnputil /remove-device "$($d.InstanceId)"
     # 3010 = removed, and Windows needs a restart to finish (documented pnputil code).
     if ($LASTEXITCODE -in 0, 3010) { $removed++ }
@@ -203,10 +214,14 @@ foreach ($d in $targets) {
 }
 
 Write-Host ""
-if ($removed -eq $targets.Count) {
-    Write-Host "Removed $removed of $($targets.Count) device(s)." -ForegroundColor Green
-} else {
-    Write-Host "Removed $removed of $($targets.Count) device(s) - pnputil says why the rest failed above." -ForegroundColor Yellow
+if ($skipped) {
+    Write-Host "Skipped $skipped device(s) that were connected again while the list was open." -ForegroundColor Yellow
+}
+$tried = $targets.Count - $skipped
+if ($tried -and $removed -eq $tried) {
+    Write-Host "Removed $removed of $tried device(s)." -ForegroundColor Green
+} elseif ($tried) {
+    Write-Host "Removed $removed of $tried device(s) - pnputil says why the rest failed above." -ForegroundColor Yellow
 }
 if ($needReboot) { Write-Host "Restart Windows to finish removing them." -ForegroundColor Yellow }
 if ($removed) {

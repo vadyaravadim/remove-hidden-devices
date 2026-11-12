@@ -22,6 +22,11 @@ whole list never ran, and the run died in the `trap`. The script now stops befor
 (hyphenated, as Microsoft's "Determining Whether Server Core Is Running" spells it); `-Status` still lists the
 ghosts there.
 
+**Presence is re-checked per device right before `pnputil`, not only at the scan.** The grid can stay open for
+minutes while a monitor comes back on or a USB device is replugged into the same port (same instance ID), and
+`pnputil /remove-device` removes a present device too: it stops working and loses its settings. A device that
+is present again is skipped and counted apart from failures.
+
 **The script never restarts the computer.** It used to offer `Restart-Computer -Force`, which closes apps
 without saving. `pnputil /remove-device` returns 3010 when Windows needs a restart to finish removing a
 device; that is the only case in which the script asks for one. Exit codes 0 and 3010 both count as
